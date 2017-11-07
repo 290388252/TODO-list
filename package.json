@@ -1,0 +1,23 @@
+{
+  "name": "musicapp",
+  "version": "1.0.0",
+  "description": "first vue node mongodb project",
+  "main": "index.js",
+  "dependencies": {
+    "jquery": "^3.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/290388252/MusicApp-vuejs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/290388252/MusicApp-vuejs/issues"
+  },
+  "homepage": "https://github.com/290388252/MusicApp-vuejs#readme"
+}
