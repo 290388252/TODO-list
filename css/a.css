@@ -1,0 +1,41 @@
+*{
+    /*background: rgba(0,0,0,0.1);*/
+}
+body{
+    background: #a85ac7;
+    color: white;
+}
+.container{
+    max-width: 900px;
+    margin: 0 auto;
+}
+/*.add-task{*/
+    /*margin-bottom: 10px;*/
+/*}*/
+input[type=text],input[type=date]{
+    padding: 10px;
+    display: block;
+    border-radius: 5px;
+    width: 100%;
+}
+.task-item{
+    padding:10px;
+    background: white;
+    color: gray;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 2px 3px rgba(0,0,0,.5);
+    -moz-box-shadow:  0 2px 3px rgba(0,0,0,.5);
+    box-shadow:  0 2px 3px rgba(0,0,0,.5);
+    -webkit-transition: background 0.3s;
+    -moz-transition: background 0.3s;
+    -ms-transition: background 0.3s;
+    -o-transition: background 0.3s;
+    transition: background 0.3s;
+}
+.task-item:hover{
+    background: #eeeeee;
+}
+h1{
+    text-align: center;
+}
