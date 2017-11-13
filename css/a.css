@@ -60,7 +60,7 @@ button{
 .task-item{
     padding:10px;
     background: white;
-    color: gray;
+    color: black;
     margin-bottom: 5px;
     border-radius: 5px;
     -webkit-box-shadow: 0 2px 3px rgba(0,0,0,.5);
@@ -76,6 +76,7 @@ button{
 .task-item:hover{
     background: #eeeeee;
 }
+
 h1{
     text-align: center;
 }
@@ -102,4 +103,11 @@ h1{
     left:0;
     /*background: rgba(0,0,0,.2);*/
     display: none;
+}
+.action{
+    color: gray;
+    font-size: 80%;
+}
+.task-content{
+    margin-left: 10px;
 }
