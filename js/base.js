@@ -1,32 +1,58 @@
 /**
+ * by yanchao
  * Created by Administrator on 2017/11/7.
  */
 ;(function () {
     'use strict';
     var $form_add_task = $('.add-task')
+        ,$delete_task_item
+        ,$task_detail_item
+        ,$task_detail = $('.task-detail')
+        ,$task_detail_mask = $('.task-detail-mask')
         ,task_list = {};
+
     init();
 
-    $form_add_task.on('submit',function (e) {
-        var new_task = {}
-        //禁用默认行为
-        e.preventDefault();
-        //获取TASK的值
-        new_task.content = $(this).find('input[name=content]').val()
-        //如果task为空则返回
-        if(!new_task.content) return;
-        console.log('newtask', new_task);
-        if(add_task(new_task)){
-            render_task_list();
-        }
-        // if(add_task(new_task)){
-            // render_task_list();
-        // };
-    })
+    // $form_add_task.on('submit',function (e) {
+    //     var new_task = {};
+    //     //禁用默认行为
+    //     e.preventDefault();
+    //     //获取TASK的值
+    //     new_task.content = $(this).find('input[name=content]').val();
+    //     //如果task为空则返回
+    //     if(!new_task.content) return;
+    //     console.log('newtask', new_task);
+    //     if(add_task(new_task)){
+    //         $(this).find('input[name=content]').val(null);
+    //     }
+    // });
+
+    $form_add_task.on('submit',on_add_task_form_submit);
+    $task_detail_mask.on('click',hide_task);
+    //每次都能监听
+    function listen_delete_task_item() {
+        $delete_task_item.on('click',function () {
+            var $this = $(this);
+            var $item = $this.parent().parent();
+            var index = $item.data('index');
+            var tmp = confirm('are you sure to delete?');
+            // console.log('$item.data(index)',$item.data('index'));
+            tmp ? delete_task(index) : null;
+        });
+    }
+
+    function listen_task_detail_item() {
+        $task_detail_item.on('click',function () {
+            var $this = $(this);
+            var $item = $this.parent().parent();
+            var index = $item.data('index');
+            show_task(index);
+        })
+    }
 
     function init() {
          task_list = store.get('task_list') || [];
-         console.log('task_list.length',task_list.length)
+         console.log('task_list.length',task_list.length);
          if (task_list.length){
              render_task_list();
          }
@@ -51,30 +77,74 @@
     function add_task(new_task) {
         /*将新Task推入task_list*/
         task_list.push(new_task);
-        store.set('task_list',task_list);
+        refresh_task_list();
         console.log('task_list',task_list);
         /*更新localStorage*/
          return true;
-        // refresh_task_list();
-
     }
+
+    function delete_task(index) {
+        if (index === undefined || !task_list[index])return;
+        delete task_list[index];
+        refresh_task_list();
+    }
+
+    function show_task(index) {
+        if (index === undefined || !task_list[index])return;
+        render_task_detail(index);
+        $task_detail.show();
+        $task_detail_mask.show();
+        refresh_task_list();
+    }
+
+    function hide_task() {
+        $task_detail.hide();
+        $task_detail_mask.hide();
+        refresh_task_list();
+    }
+
+    function refresh_task_list() {
+        store.set('task_list',task_list);
+        render_task_list()
+    }
+
     function render_task_list() {
         var $task_list = $('.task-list');
         $task_list.html('');
         for (var i = 0; i < task_list.length; i++){
-            var $task = render_task_tpl(task_list[i]);
+            var $task = render_task_item(task_list[i],i);
             $task_list.append($task)
         }
-        console.log('1',1)
+        $delete_task_item = $('.action.delete');
+        $task_detail_item = $('.action.detail');
+        listen_delete_task_item();
+        listen_task_detail_item();
+        console.log('监听成功');
     }
-    
-    function render_task_tpl(data) {
-        var list_item_tpl = '<div class="task-item">'+
+
+    function render_task_detail(index) {
+        var item = task_list[index];
+        var tpl = '<div class="task-detail-content">'+ item.content +
+                  '</div>'+
+                      '<div class="desc">'+
+                          '<textarea style="width: 100%;height: 150px"></textarea>'+
+                      '</div>'+
+                      '<div class="remind">'+
+                          '<input type="date">'+
+                      '<button type="submit">submit</button>'+
+                  '</div>';
+        $task_detail.html('');
+        $task_detail.html(tpl);
+    }
+
+    function render_task_item(data,index) {
+        if (!data || !index)return;
+        var list_item_tpl = '<div class="task-item" data-index="' + index + '">'+
                                 '<span><input type="checkbox"></span>'+
                                 '<span class="task-content">'+data.content+'</span>'+
                                 '<span style="float:right;">'+
-                                    '<span class="action"> delete </span>'+
-                                    '<span class="action"> detail </span>'+
+                                    '<span class="action delete"> delete </span>'+
+                                    '<span class="action detail"> detail </span>'+
                                 '</span>'+
                             '</div>';
         return $(list_item_tpl)
