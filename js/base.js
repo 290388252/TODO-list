@@ -9,6 +9,8 @@
         ,$task_detail_item
         ,$task_detail = $('.task-detail')
         ,$task_detail_mask = $('.task-detail-mask')
+        ,$updata_form
+        ,current_index
         ,task_list = {};
 
     init();
@@ -91,12 +93,19 @@
 
     function show_task(index) {
         if (index === undefined || !task_list[index])return;
+        current_index = index;
         render_task_detail(index);
         $task_detail.show();
         $task_detail_mask.show();
         refresh_task_list();
     }
-
+    
+    function update_task(index,data) {
+        if (index === undefined || !task_list[index])return;
+        task_list[index] = $.merge({},task_list[index],data);
+        refresh_task_list();
+    }
+    
     function hide_task() {
         $task_detail.hide();
         $task_detail_mask.hide();
@@ -124,17 +133,32 @@
 
     function render_task_detail(index) {
         var item = task_list[index];
-        var tpl = '<div class="task-detail-content">'+ item.content +
-                  '</div>'+
+        console.log(item.content);
+        var tpl = '<form>' +
+                      // '<div name= "content" class="task-detail-content">'+ item.content +
+                      // '</div>'+
+                      '<input type="text" name="remind_date" value=" ' + item.content + '">'+
                       '<div class="desc">'+
-                          '<textarea style="width: 100%;height: 150px"></textarea>'+
+                          '<textarea name= "desc" style="width: 100%;height: 150px">' + item.desc + '</textarea>' +
                       '</div>'+
                       '<div class="remind">'+
-                          '<input type="date">'+
+                          '<input type="date" name="remind_date">'+
                       '<button type="submit">submit</button>'+
-                  '</div>';
+                      '</div>'+
+                  '</form>';
         $task_detail.html('');
         $task_detail.html(tpl);
+        $updata_form = $task_detail.find('form');
+        $updata_form.on('submit',function (e) {
+            e.preventDefault();
+            var data = {};
+            data.content = $(this).find('[name=content]').val();
+            data.desc = $(this).find('[name=desc]').val();
+            data.remind_date = $(this).find('[name=remind_date]').val();
+            console.log(data);
+            update_task(index,data);
+
+        })
     }
 
     function render_task_item(data,index) {
