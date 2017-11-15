@@ -10,6 +10,8 @@
         ,$task_detail = $('.task-detail')
         ,$task_detail_mask = $('.task-detail-mask')
         ,$updata_form
+        ,$task_detail_content
+        ,$task_detail_content_input
         ,current_index
         ,task_list = {};
 
@@ -44,10 +46,15 @@
     }
 
     function listen_task_detail_item() {
+        var index;
+        $('.task-item').on('click',function () {
+            index = $(this).data('index');
+            show_task(index);
+        });
         $task_detail_item.on('click',function () {
             var $this = $(this);
             var $item = $this.parent().parent();
-            var index = $item.data('index');
+            index = $item.data('index');
             show_task(index);
         })
     }
@@ -102,7 +109,9 @@
     
     function update_task(index,data) {
         if (index === undefined || !task_list[index])return;
-        task_list[index] = $.merge({},task_list[index],data);
+        // task_list[index] = $.merge({},task_list[index],data);
+        task_list[index] = data;
+        console.log(data);
         refresh_task_list();
     }
     
@@ -122,7 +131,7 @@
         $task_list.html('');
         for (var i = 0; i < task_list.length; i++){
             var $task = render_task_item(task_list[i],i);
-            $task_list.append($task)
+            $task_list.prepend($task)
         }
         $delete_task_item = $('.action.delete');
         $task_detail_item = $('.action.detail');
@@ -133,22 +142,31 @@
 
     function render_task_detail(index) {
         var item = task_list[index];
-        console.log(item.content);
         var tpl = '<form>' +
                       // '<div name= "content" class="task-detail-content">'+ item.content +
                       // '</div>'+
-                      '<input type="text" name="remind_date" value=" ' + item.content + '">'+
+                      '<div class="task-detail-content">'+item.content +
+                      '</div>'+
+                      '<div class="task-detail-content-input">'+
+                          '<input style = "display: none;" type="text" name="content" value=" ' + (item.content || '') + '">'+
+                      '</div>'+
                       '<div class="desc">'+
-                          '<textarea name= "desc" style="width: 100%;height: 150px">' + item.desc + '</textarea>' +
+                          '<textarea name= "desc" style="width: 100%;height: 150px">' + (item.desc || '')+ '</textarea>' +
                       '</div>'+
                       '<div class="remind">'+
-                          '<input type="date" name="remind_date">'+
-                      '<button type="submit">submit</button>'+
+                          '<input type="date" name="remind_date" value=" ' + item.remind_date + '">'+
                       '</div>'+
+                      '<button type="submit">submit</button>'+
                   '</form>';
         $task_detail.html('');
         $task_detail.html(tpl);
         $updata_form = $task_detail.find('form');
+        $task_detail_content = $updata_form.find('.task-detail-content');
+        $task_detail_content_input = $updata_form.find('[name=content]');
+        $task_detail_content.on('dblclick',function () {
+           $task_detail_content_input.show();
+           $task_detail_content.hide();
+        });
         $updata_form.on('submit',function (e) {
             e.preventDefault();
             var data = {};
@@ -157,7 +175,7 @@
             data.remind_date = $(this).find('[name=remind_date]').val();
             console.log(data);
             update_task(index,data);
-
+            hide_task();
         })
     }
 
@@ -165,7 +183,7 @@
         if (!data || !index)return;
         var list_item_tpl = '<div class="task-item" data-index="' + index + '">'+
                                 '<span><input type="checkbox"></span>'+
-                                '<span class="task-content">'+data.content+'</span>'+
+                                '<span class="task-content">'+(data.content).replace(/(^\s*)/g, "")+'</span>'+
                                 '<span style="float:right;">'+
                                     '<span class="action delete"> delete </span>'+
                                     '<span class="action detail"> detail </span>'+
