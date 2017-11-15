@@ -12,11 +12,12 @@
         ,$updata_form
         ,$task_detail_content
         ,$task_detail_content_input
+        ,$checkbox_complete
         ,current_index
         ,task_list = {};
 
     init();
-
+    console.log($('input[type = checkbox]'))
     // $form_add_task.on('submit',function (e) {
     //     var new_task = {};
     //     //禁用默认行为
@@ -47,7 +48,7 @@
 
     function listen_task_detail_item() {
         var index;
-        $('.task-item').on('click',function () {
+        $('.task-item').on('dblclick',function () {
             index = $(this).data('index');
             show_task(index);
         });
@@ -58,7 +59,21 @@
             show_task(index);
         })
     }
-
+    
+    function listen_checkbox_complete() {
+        $checkbox_complete.on('click',function () {
+            var completeOrUncomplete = $(this).is(':checked');
+            var custr;
+            // completeOrUncomplete ? custr = 'task complete' : custr = 'task uncomplete';
+            // if (completeOrUncomplete){
+            //     custr = 'task complete'
+            // }else {
+            //     custr = 'task uncomplete'
+            // }
+            console.log($(this).is(':checked'));
+        })
+    }
+    
     function init() {
          task_list = store.get('task_list') || [];
          console.log('task_list.length',task_list.length);
@@ -135,8 +150,10 @@
         }
         $delete_task_item = $('.action.delete');
         $task_detail_item = $('.action.detail');
+        $checkbox_complete = $('.task-list .complete');
         listen_delete_task_item();
         listen_task_detail_item();
+        listen_checkbox_complete();
         console.log('监听成功');
     }
 
@@ -182,7 +199,7 @@
     function render_task_item(data,index) {
         if (!data || !index)return;
         var list_item_tpl = '<div class="task-item" data-index="' + index + '">'+
-                                '<span><input type="checkbox"></span>'+
+                                '<span class="complete"><input type="checkbox"></span>'+
                                 '<span class="task-content">'+(data.content).replace(/(^\s*)/g, "")+'</span>'+
                                 '<span style="float:right;">'+
                                     '<span class="action delete"> delete </span>'+
