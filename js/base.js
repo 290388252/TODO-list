@@ -17,7 +17,6 @@
         ,task_list = {};
 
     init();
-    console.log($('input[type = checkbox]'))
     // $form_add_task.on('submit',function (e) {
     //     var new_task = {};
     //     //禁用默认行为
@@ -62,15 +61,22 @@
     
     function listen_checkbox_complete() {
         $checkbox_complete.on('click',function () {
-            var completeOrUncomplete = $(this).is(':checked');
-            var custr;
-            // completeOrUncomplete ? custr = 'task complete' : custr = 'task uncomplete';
-            // if (completeOrUncomplete){
-            //     custr = 'task complete'
+            var $input_check = $('input[name=check]');
+            var completeOrUncomplete = $input_check.is(':checked');
+            var index = $input_check.parent().parent().data('index');
+            var item = store.get('task_list')[index];
+            completeOrUncomplete ? item.complete = true :item.complete = false ;
+            console.log(item.complete);
+            update_task(index,{complete :item.complete});
+            // if (item.complete){
+            //     update_task(index,{complete:false});
+            //     $input_check.attr('check',true);
             // }else {
-            //     custr = 'task uncomplete'
+            //     update_task(index,{complete:true});
+            //     $input_check.attr('check',false);
             // }
-            console.log($(this).is(':checked'));
+            // console.log($(this).is(':checked'));
+            // console.log($(this).is(':not(:checked)'));
         })
     }
     
@@ -124,9 +130,9 @@
     
     function update_task(index,data) {
         if (index === undefined || !task_list[index])return;
-        // task_list[index] = $.merge({},task_list[index],data);
-        task_list[index] = data;
-        console.log(data);
+        task_list[index] = $.extend({},task_list[index],data);
+        // task_list[index] = data;
+        console.log(task_list[index]);
         refresh_task_list();
     }
     
@@ -144,10 +150,22 @@
     function render_task_list() {
         var $task_list = $('.task-list');
         $task_list.html('');
+        var complete_item = [];
         for (var i = 0; i < task_list.length; i++){
-            var $task = render_task_item(task_list[i],i);
-            $task_list.prepend($task)
+            var item = task_list[i];
+            if (item && item.complete){
+                complete_item.push(item);
+            }else {
+                var $task = render_task_item(item,i);
+                $task_list.prepend($task);
+            }
         }
+        console.log(task_list);
+        console.log(complete_item);
+        // for (var j = 0; j < complete_item.length; j++){
+        //     $task = render_task_item(item,j);
+        //     $task_list.append($task)
+        // };
         $delete_task_item = $('.action.delete');
         $task_detail_item = $('.action.detail');
         $checkbox_complete = $('.task-list .complete');
@@ -199,7 +217,7 @@
     function render_task_item(data,index) {
         if (!data || !index)return;
         var list_item_tpl = '<div class="task-item" data-index="' + index + '">'+
-                                '<span class="complete"><input type="checkbox"></span>'+
+                                '<span class="complete"><input type="checkbox" name="check"' +(data.complete ? "checked" : '' )+'></span>'+
                                 '<span class="task-content">'+(data.content).replace(/(^\s*)/g, "")+'</span>'+
                                 '<span style="float:right;">'+
                                     '<span class="action delete"> delete </span>'+
