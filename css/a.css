@@ -116,3 +116,15 @@ h1{
 .task-content{
     margin-left: 10px;
 }
+.task-item.completed{
+    color: gray;
+}
+.task-item.completed:after{
+    content: '';
+    background: gray;
+    display: block;
+    position: relative;
+    height: 1px;
+    width: 100%;
+    top: -8px;
+}

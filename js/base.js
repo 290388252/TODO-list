@@ -14,9 +14,9 @@
         ,$task_detail_content_input
         ,$checkbox_complete
         ,current_index
-        ,task_list = {};
-
+        ,task_list = [];
     init();
+    // store.clear();
     // $form_add_task.on('submit',function (e) {
     //     var new_task = {};
     //     //禁用默认行为
@@ -58,28 +58,46 @@
             show_task(index);
         })
     }
-    
+    /*监听完成Task事件*/
+    // function listen_checkbox_complete() {
+    //     $checkbox_complete.on('click', function () {
+    //         var $this = $(this);
+    //         var index = $this.parent().parent().data('index');
+    //         var item = get(index);
+    //         if (item.complete)
+    //             update_task(index, {complete: false});
+    //         else
+    //             update_task(index, {complete: true});
+    //     })
+    // }
+
     function listen_checkbox_complete() {
         $checkbox_complete.on('click',function () {
-            var $input_check = $('input[name=check]');
+            var $input_check = $(this);
+            // var $input_check = $('input[name=check]');
             var completeOrUncomplete = $input_check.is(':checked');
             var index = $input_check.parent().parent().data('index');
             var item = store.get('task_list')[index];
             completeOrUncomplete ? item.complete = true :item.complete = false ;
             console.log(item.complete);
+            console.log(index);
             update_task(index,{complete :item.complete});
             // if (item.complete){
-            //     update_task(index,{complete:false});
-            //     $input_check.attr('check',true);
+                // update_task(index,{complete:false});
+                // $input_check.attr('check',true);
             // }else {
-            //     update_task(index,{complete:true});
-            //     $input_check.attr('check',false);
+                // update_task(index,{complete:true});
+                // $input_check.attr('check',false);
             // }
             // console.log($(this).is(':checked'));
             // console.log($(this).is(':not(:checked)'));
         })
     }
-    
+
+    function get(index) {
+        return store.get('task_list')[index];
+    }
+
     function init() {
          task_list = store.get('task_list') || [];
          console.log('task_list.length',task_list.length);
@@ -96,13 +114,16 @@
         $input = $(this).find('input[name=content]');
         new_task.content = $input.val();
         /*如果新Task的值为空 则直接返回 否则继续执行*/
-        if (!new_task.content) return;
+        if (!new_task.content) {
+            console.log('new_task empty and return!');
+            return;
+        }
         /*存入新Task*/
         if (add_task(new_task)) {
             // render_task_list();
             $input.val(null);
+            console.log('newtask', new_task);
         }
-        console.log('newtask', new_task);
     }
     function add_task(new_task) {
         /*将新Task推入task_list*/
@@ -153,22 +174,23 @@
         var complete_item = [];
         for (var i = 0; i < task_list.length; i++){
             var item = task_list[i];
-            if (item && item.complete){
-                complete_item.push(item);
-            }else {
+            if (item && item.complete)
+                complete_item[i] = item;
+            else
                 var $task = render_task_item(item,i);
-                $task_list.prepend($task);
-            }
+            $task_list.prepend($task);
         }
         console.log(task_list);
         console.log(complete_item);
-        // for (var j = 0; j < complete_item.length; j++){
-        //     $task = render_task_item(item,j);
-        //     $task_list.append($task)
-        // };
+        for (var j = 0; j < complete_item.length; j++){
+            $task = render_task_item(complete_item[j],j);
+            if (!$task) continue;
+            $task.addClass('completed');
+            $task_list.append($task)
+        };
         $delete_task_item = $('.action.delete');
         $task_detail_item = $('.action.detail');
-        $checkbox_complete = $('.task-list .complete');
+        $checkbox_complete = $('.task-list .complete[type=checkbox]');
         listen_delete_task_item();
         listen_task_detail_item();
         listen_checkbox_complete();
@@ -215,9 +237,12 @@
     }
 
     function render_task_item(data,index) {
-        if (!data || !index)return;
+        if (!data || !index){
+            console.log('task-item create fail!');
+            return;
+        }
         var list_item_tpl = '<div class="task-item" data-index="' + index + '">'+
-                                '<span class="complete"><input type="checkbox" name="check"' +(data.complete ? "checked" : '' )+'></span>'+
+                                '<span><input  class="complete" type="checkbox" name="check"' +(data.complete ? "checked" : '' )+'></span>'+
                                 '<span class="task-content">'+(data.content).replace(/(^\s*)/g, "")+'</span>'+
                                 '<span style="float:right;">'+
                                     '<span class="action delete"> delete </span>'+
