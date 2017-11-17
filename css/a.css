@@ -128,3 +128,11 @@ h1{
     width: 100%;
     top: -8px;
 }
+.msg{
+    content: '大吉大利，今晚吃鸡';
+    color: white;
+    text-align: center;
+    background: gold;
+    height: 90px;
+    line-height: 90px;
+}

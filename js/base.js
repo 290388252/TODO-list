@@ -103,9 +103,33 @@
          console.log('task_list.length',task_list.length);
          if (task_list.length){
              render_task_list();
+             task_remind_check();
          }
     }
+    
+    function task_remind_check() {
+        var current_time_stamp;
+        for (var i = 0; i < task_list.length; i++){
+            var item = get(i),task_time_stamp;
+            if (!item || !item.remind_date || item.informed){
+                continue;
+            }
+            task_time_stamp = (new Date(item.remind_date)).getTime();
+            current_time_stamp = (new Date()).getTime();
+            console.log(item);
+            console.log(new Date() + '-' + item.remind_date);
+            console.log(current_time_stamp - task_time_stamp);
+            if (current_time_stamp - task_time_stamp <= 1000 && current_time_stamp - task_time_stamp >= 0){
+                    update_task(i,{informed : true});
+                    notify(item.content);
+                }
+            }
+        }
 
+    function notify() {
+        
+    }
+    
     function on_add_task_form_submit(e) {
         var new_task = {}, $input;
         /*禁用默认行为*/
@@ -211,12 +235,13 @@
                           '<textarea name= "desc" style="width: 100%;height: 150px">' + (item.desc || '')+ '</textarea>' +
                       '</div>'+
                       '<div class="remind">'+
-                          '<input type="date" name="remind_date" value=" ' + item.remind_date + '">'+
+                          '<input class= "datetime" type="text" name="remind_date" value=" ' + (item.remind_date || '') + '">'+
                       '</div>'+
                       '<button type="submit">submit</button>'+
                   '</form>';
         $task_detail.html('');
         $task_detail.html(tpl);
+        $('.datetime').datetimepicker();
         $updata_form = $task_detail.find('form');
         $task_detail_content = $updata_form.find('.task-detail-content');
         $task_detail_content_input = $updata_form.find('[name=content]');
