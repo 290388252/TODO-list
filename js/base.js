@@ -5,6 +5,7 @@
 ;(function () {
     'use strict';
     var $form_add_task = $('.add-task')
+        ,$body = $('body')
         ,$delete_task_item
         ,$task_detail_item
         ,$task_detail = $('.task-detail')
@@ -13,9 +14,14 @@
         ,$task_detail_content
         ,$task_detail_content_input
         ,$checkbox_complete
+        ,$msg = $('.msg')
+        ,$msg_content = $msg.find('.msg_content')
+        ,$msg_confirm = $msg.find('button')
+        ,$alerter = $('.alerter')
         ,current_index
         ,task_list = [];
     init();
+    pop()
     // store.clear();
     // $form_add_task.on('submit',function (e) {
     //     var new_task = {};
@@ -93,13 +99,20 @@
             // console.log($(this).is(':not(:checked)'));
         })
     }
-
+    
+    function listen_msg_confirm() {
+        $msg_confirm.on('click',function () {
+            hide_msg();
+        })
+    }
+    
     function get(index) {
         return store.get('task_list')[index];
     }
 
     function init() {
          task_list = store.get('task_list') || [];
+        listen_msg_confirm();
          console.log('task_list.length',task_list.length);
          if (task_list.length){
              render_task_list();
@@ -107,29 +120,61 @@
          }
     }
     
-    function task_remind_check() {
-        var current_time_stamp;
-        for (var i = 0; i < task_list.length; i++){
-            var item = get(i),task_time_stamp;
-            if (!item || !item.remind_date || item.informed){
-                continue;
-            }
-            task_time_stamp = (new Date(item.remind_date)).getTime();
-            current_time_stamp = (new Date()).getTime();
-            console.log(item);
-            console.log(new Date() + '-' + item.remind_date);
-            console.log(current_time_stamp - task_time_stamp);
-            if (current_time_stamp - task_time_stamp <= 1000 && current_time_stamp - task_time_stamp >= 0){
-                    update_task(i,{informed : true});
-                    notify(item.content);
-                }
-            }
+    function pop(arg) {
+        if (!arg){
+            console.error('pop title is null');
         }
 
-    function notify() {
-        
+        var conf = {},$box,$mask;
+        if  (typeof arg =='string'){
+            conf.title = arg;
+        }else {
+            conf = $.extend(conf,arg)
+        }
+
+        $box = $('<div></div>').css({
+            width: 500,
+            height: 300,
+            background: '#fff'
+        });
+
+        $box.appendTo($body);
+
+        console.log('conf',conf)
     }
     
+    function task_remind_check() {
+        var current_time_stamp;
+        var itl = setInterval(function () {
+            for (var i = 0; i < task_list.length; i++){
+                var item = get(i),task_time_stamp;
+                if (!item || !item.remind_date || item.informed){
+                    continue;
+                }
+                task_time_stamp = (new Date(item.remind_date)).getTime();
+                current_time_stamp = (new Date()).getTime();
+                console.log(item);
+                console.log(new Date() + '-' + item.remind_date);
+                console.log(current_time_stamp - task_time_stamp);
+                if (current_time_stamp - task_time_stamp <= 1000 && current_time_stamp - task_time_stamp >= 0){
+                    update_task(i,{informed : true});
+                    show_msg(item.content);
+                }
+            }
+        },300);
+
+        }
+
+    function show_msg(msg) {
+        $msg_content.html(msg);
+        $alerter.get(0).play();
+        $msg.show();
+    }
+
+    function hide_msg() {
+        $msg.hide();
+    }
+
     function on_add_task_form_submit(e) {
         var new_task = {}, $input;
         /*禁用默认行为*/

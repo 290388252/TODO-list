@@ -83,11 +83,15 @@ h1{
 .task-detail ,.task-detail-mask{position: absolute;display: none;}
 .task-detail{
     width: 50%;
+    /*第一种UI*/
     height: 300px;
+    top:0;
+    /*第二种UI*/
+    /*height: 100%;*/
+    /*overflow: auto;*/
     color: #000;;
     background: white;
     border-radius: 5px;
-    top:0;
     bottom:0;
     right:0;
     padding: 10px;
@@ -129,10 +133,19 @@ h1{
     top: -8px;
 }
 .msg{
-    content: '大吉大利，今晚吃鸡';
     color: white;
     text-align: center;
     background: gold;
     height: 90px;
-    line-height: 90px;
+    display: none;
+}
+.msg_content{
+    padding-top:20px;
+}
+.ok{
+    margin: 10px;
+    float: right;
+}
+.alerter{
+    opacity: 0;
 }
