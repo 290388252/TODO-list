@@ -5,6 +5,7 @@
 ;(function () {
     'use strict';
     var $form_add_task = $('.add-task')
+        ,$window = $(window)
         ,$body = $('body')
         ,$delete_task_item
         ,$task_detail_item
@@ -125,21 +126,73 @@
             console.error('pop title is null');
         }
 
-        var conf = {},$box,$mask;
+        var conf = {},$box,$mask,$title,$content;
+
+        $box = $('<div>' +
+            '<div class="pop-title">Are you suer to delete ?</div>' +
+            '<div class="pop-content">asdasdasdasd</div>' +
+            '</div>').css({
+            width: 380,
+            height: 200,
+            color: 'black',
+            background: '#fff',
+            position: 'fixed',
+            'border-radius': 7,
+            'box-shadow': '0 1px 2px rgba(0,0,0,.5)'
+        });
+
+        $mask = $('<div></div>')
+            .css({
+                position: 'fixed',
+                background: 'rgba(0,0,0,.5)',
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0
+            });
+
+        $box.find('.pop-title').css({
+            padding: '15px 10px',
+            'font-weight': 900,
+            'font-size': 20,
+            'text-align': 'center'
+        });
+
+        $box.find('.pop-content').css({
+            padding: '5px 10px',
+            'text-align': 'center'
+        });
+
         if  (typeof arg =='string'){
             conf.title = arg;
         }else {
             conf = $.extend(conf,arg)
         }
 
-        $box = $('<div></div>').css({
-            width: 500,
-            height: 300,
-            background: '#fff'
+        function adjust_box_position() {
+            var window_width = $window.width()
+                , window_height = $window.height()
+                , box_width = $box.width()
+                , box_height = $box.height()
+                , move_x
+                , move_y
+            ;
+
+            move_x = (window_width - box_width) / 2;
+            move_y = ((window_height - box_height) / 2) - 50;
+
+            $box.css({
+                left: move_x,
+                top: move_y
+            })
+        }
+        
+        $window.on('resize',function () {
+           adjust_box_position()
         });
-
+        $mask.appendTo($body);
         $box.appendTo($body);
-
+        $window.resize();
         console.log('conf',conf)
     }
     
