@@ -22,7 +22,6 @@
         ,current_index
         ,task_list = [];
     init();
-    pop()
     // store.clear();
     // $form_add_task.on('submit',function (e) {
     //     var new_task = {};
@@ -46,9 +45,11 @@
             var $this = $(this);
             var $item = $this.parent().parent();
             var index = $item.data('index');
-            var tmp = confirm('are you sure to delete?');
+            // var tmp = confirm('are you sure to delete?');
+            pop('Are you suer to delete?').then(function (tmp) {
+                tmp ? delete_task(index) : null;
+            });
             // console.log('$item.data(index)',$item.data('index'));
-            tmp ? delete_task(index) : null;
         });
     }
 
@@ -125,22 +126,40 @@
         if (!arg){
             console.error('pop title is null');
         }
+        var conf = {}
+            ,$box
+            ,$mask
+            ,$title
+            ,$content
+            ,$confirm
+            ,$cancel
+            ,confirmed
+            ,dfd = $.Deferred()
+            ,timer;
 
-        var conf = {},$box,$mask,$title,$content;
+        if  (typeof arg =='string'){
+            conf.title = arg;
+        }else {
+            conf = $.extend(conf,arg)
+        }
 
         $box = $('<div>' +
-            '<div class="pop-title">Are you suer to delete ?</div>' +
-            '<div class="pop-content">asdasdasdasd</div>' +
-            '</div>').css({
-            width: 380,
-            height: 200,
+                    '<div class="pop-title">' + conf.title + '</div>' +
+                    '<div class="pop-content">asdasdasdasd</div>' +
+                    '<div>' +
+                        '<button style = "margin:10px 20px 0 120px" class="confirm">yes</button>' +
+                        '<button class="cancel">no</button>' +
+                    '</div>' +
+                 '</div>').css({
+            width: 350,
+            height: 180,
             color: 'black',
             background: '#fff',
             position: 'fixed',
             'border-radius': 7,
             'box-shadow': '0 1px 2px rgba(0,0,0,.5)'
         });
-
+        console.log(conf.title)
         $mask = $('<div></div>')
             .css({
                 position: 'fixed',
@@ -151,23 +170,48 @@
                 right: 0
             });
 
-        $box.find('.pop-title').css({
-            padding: '15px 10px',
+        $title = $box.find('.pop-title').css({
+            padding: '20px 10px',
             'font-weight': 900,
             'font-size': 20,
             'text-align': 'center'
         });
 
-        $box.find('.pop-content').css({
-            padding: '5px 10px',
+        $content = $box.find('.pop-content').css({
+            padding: '10px 10px',
             'text-align': 'center'
         });
 
-        if  (typeof arg =='string'){
-            conf.title = arg;
-        }else {
-            conf = $.extend(conf,arg)
+        $confirm = $box.find('button.confirm');
+
+        $cancel = $box.find('button.cancel');
+
+        timer = setInterval(function () {
+            if (confirmed !== undefined) {
+                dfd.resolve(confirmed);
+                clearInterval(timer);
+                pop_hide();
+            }
+        },50);
+        $confirm.on('click',function () {
+            confirmed = true;
+        });
+
+        $cancel.on('click',function () {
+            confirmed = false;
+        });
+
+        $mask.on('click',function () {
+            pop_hide();
+        });
+
+        function pop_hide() {
+            $box.hide();
+            $mask.hide();
         }
+        $box.find('.pop-button').css({
+            'margin': '0 auto'
+        });
 
         function adjust_box_position() {
             var window_width = $window.width()
@@ -193,7 +237,8 @@
         $mask.appendTo($body);
         $box.appendTo($body);
         $window.resize();
-        console.log('conf',conf)
+        console.log('conf',conf);
+        return dfd.promise();
     }
     
     function task_remind_check() {
